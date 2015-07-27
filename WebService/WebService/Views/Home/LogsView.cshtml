@@ -1,0 +1,12 @@
+﻿@using WebService.Controllers
+@{
+    ViewBag.Title = "Logs";
+}
+
+<h2>Logs</h2>
+
+@Logs.ReturnLogs()
+
+<form action="Home/">
+    <button type="submit">Вернуться на главную</button>
+</form>
