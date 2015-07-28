@@ -64,9 +64,9 @@ namespace WebService.Controllers
 
                 if (command != null)
                 {
-                    LongPolling lon = new LongPolling();
-                    lon.Send(Encoding.UTF8.GetString(command.Body), Encoding.UTF8.GetString(command.Body));
-                    //Request!!!!!!!!!!!!!!!
+                    /* LongPolling lon = new LongPolling();}
+                    lon.Send(Encoding.UTF8.GetString(command.Body), Encoding.UTF8.GetString(command.Body)); */
+                    //Request and close polling!!!!!!!!!!!!!!!
                     Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent");
                 }
             }

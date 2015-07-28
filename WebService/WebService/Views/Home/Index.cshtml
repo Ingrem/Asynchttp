@@ -3,32 +3,31 @@
 }
 @model WebService.Models.JsonSerialization.SendCommandDto
 
-<fieldset>
-    <legend>Service</legend>
+@using (Html.BeginForm())
+{
+    <fieldset>
+        <legend>Service</legend>
 
-    <div class="editor-label"><b>Device ID</b></div>
-    <div class="editor-field">
-        @Html.EditorFor(model => model.DeviceId)
-        @Html.ValidationMessageFor(model => model.DeviceId)
-    </div>
+        <div class="editor-label"><b>Device ID</b>
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DeviceId)
+            @Html.ValidationMessageFor(model => model.DeviceId)
+        </div>
 
-    <div class="editor-label"><b>Command name</b></div>
-    <div class="editor-field">
-        @Html.EditorFor(model => model.Command.CommandName)
-        @Html.ValidationMessageFor(model => model.Command.CommandName)
-    </div>
+        <div class="editor-label"><b>Command name</b>
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Command.CommandName)
+            @Html.ValidationMessageFor(model => model.Command.CommandName)
+        </div>
 
-    <div class="editor-label"><b>Parameters</b></div>
-    <div class="editor-field">
-        @Html.EditorFor(model => model.Command.Parameters)
-        @Html.ValidationMessageFor(model => model.Command.Parameters)
-    </div>
+        <form action="Home">
+            <button type="submit">Отправить</button>
+        </form>
+        <form action="Home/LogsView">
+            <button type="submit">Логи</button>
+        </form>
 
-    <form action="Home">
-        <button type="submit">Отправить</button>
-    </form>
-    <form action="Home/logs">
-        <button type="submit">Логи</button>
-    </form>
-
-</fieldset>
+    </fieldset>
+}

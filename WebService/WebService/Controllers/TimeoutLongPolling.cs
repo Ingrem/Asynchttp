@@ -24,7 +24,7 @@ namespace WebService.Controllers
         }
         private void Count(object obj)
         {
-            //request!!!!!!!!!!!!!!!!!!
+            //request and close polling!!!!!!!!!!!!!!!!!!
         }
     }
 }
