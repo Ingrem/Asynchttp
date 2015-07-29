@@ -4,9 +4,9 @@ namespace WebService.Controllers
 {
     public class LongPolling : Hub
     {
-        public void Send(string name, string message)
+        public void Send(string message)
         {
-            Clients.Client(Context.ConnectionId).addMessage(name, message);
+            Clients.Client(Context.ConnectionId).addMessage(message);
         }
     }
 }

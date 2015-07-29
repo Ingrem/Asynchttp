@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
+using Microsoft.Owin;
 using RabbitMQ.Client;
 
 namespace WebService.Controllers
@@ -46,7 +47,7 @@ namespace WebService.Controllers
                 _commandId = 0;
         }
 
-        public void Consumer(string queueName)
+        public string Consumer(string queueName)
         {
             try
             {
@@ -64,10 +65,8 @@ namespace WebService.Controllers
 
                 if (command != null)
                 {
-                    /* LongPolling lon = new LongPolling();}
-                    lon.Send(Encoding.UTF8.GetString(command.Body), Encoding.UTF8.GetString(command.Body)); */
-                    //Request and close polling!!!!!!!!!!!!!!!
                     Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent");
+                    return Encoding.UTF8.GetString(command.Body);
                 }
             }
             catch

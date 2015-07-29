@@ -5,7 +5,6 @@ namespace WebService.Controllers
 {
     public class HomeController : Controller
     {
-        readonly TimeoutLongPolling _timeout = new TimeoutLongPolling();
         readonly RabbitQueue _rabbit = new RabbitQueue();
         readonly CommandValidation _validation = new CommandValidation();
         readonly GetIdFromRequest _getId = new GetIdFromRequest();
@@ -31,18 +30,6 @@ namespace WebService.Controllers
             return View();
         }
         
-        [HttpGet]
-        public ActionResult Commands()
-        {
-            if (Request.Url != null)
-            {
-                // open polling!!!!!!!!!!!!!!!!!!!
-                _timeout.CreateTimeout(_timeout.GetTimeout(Request.Url.ToString()));
-                _rabbit.Consumer(_getId.FromGet(Request.Url.ToString()));
-            }
-            return View();
-        }
-
         [HttpGet]
         public ActionResult LogsView()
         {
