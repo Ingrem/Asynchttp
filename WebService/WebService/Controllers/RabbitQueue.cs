@@ -13,7 +13,14 @@ namespace WebService.Controllers
         public const int TimeoutMs = 10000;
         public void Producer(string queueName, string command)
         {
-            var connectionFactory = new ConnectionFactory();
+            var connectionFactory = new ConnectionFactory
+                {
+                    UserName = WebConfigurationManager.AppSettings["UserName"],
+                    Password = WebConfigurationManager.AppSettings["Password"],
+                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["HostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                };
             IConnection connection = connectionFactory.CreateConnection();
             IModel channel = connection.CreateModel();
             string exchangeName = WebConfigurationManager.AppSettings["RabbitMQExchangeName"];
@@ -22,8 +29,6 @@ namespace WebService.Controllers
             channel.QueueDeclare(queueName, false, false, true, null);
             channel.QueueBind(queueName, exchangeName, queueName);
 
-            ChangeCommandIdWithDeviceId(ref command);
-
             byte[] message = Encoding.UTF8.GetBytes(command);
             channel.BasicPublish(exchangeName, queueName, null, message);
 
@@ -31,29 +36,18 @@ namespace WebService.Controllers
             connection.Close();
         }
 
-        //Change (DeviceId:"{DeviceId}") with (CommandId:"{CommandId}")
-        public void ChangeCommandIdWithDeviceId(ref string json)
-        {
-            const int commandLen = 11; // DeviceId:"id"
-            int startId = json.IndexOf("DeviceId", StringComparison.Ordinal) + commandLen;
-            int endId = startId;
-            while (json[endId] != '"')
-                endId++;
-
-            // change DeviceId with CommandId
-            json = json.Remove(startId - commandLen, endId - startId + commandLen);
-            json = json.Insert(startId - commandLen, String.Format("CommandId\":\"{0}", _commandId));
-            if (_commandId != 255)
-                _commandId++;
-            else
-                _commandId = 0;
-        }
-
         public void Consumer(string queueName)
         {
             try
             {
-                var connectionFactory = new ConnectionFactory();
+                var connectionFactory = new ConnectionFactory
+                {
+                    UserName = WebConfigurationManager.AppSettings["UserName"],
+                    Password = WebConfigurationManager.AppSettings["Password"],
+                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["HostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                };
                 IConnection connection = connectionFactory.CreateConnection();
                 IModel channel = connection.CreateModel();
                 channel.QueueDeclare(queueName, false, false, true, null);
@@ -67,7 +61,11 @@ namespace WebService.Controllers
 
                 if (command != null)
                 {
-                    Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent");
+                    Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent", _commandId);
+                    if (_commandId != 255)
+                        _commandId++;
+                    else
+                        _commandId = 0;
                     //request!!!!
                     //return status code and json then close polling
                 }
@@ -87,7 +85,14 @@ namespace WebService.Controllers
             try
             {
                 var queueName = (string)obj;
-                var connectionFactory = new ConnectionFactory();
+                var connectionFactory = new ConnectionFactory
+                {
+                    UserName = WebConfigurationManager.AppSettings["UserName"],
+                    Password = WebConfigurationManager.AppSettings["Password"],
+                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["HostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                };
                 IConnection connection = connectionFactory.CreateConnection();
                 IModel channel = connection.CreateModel();
                 channel.QueueDeclare(queueName, false, false, true, null);
@@ -100,7 +105,13 @@ namespace WebService.Controllers
                 connection.Close();
 
                 if (command != null)
-                    Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "timeout");
+                {
+                    Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "timeout", _commandId);
+                    if (_commandId != 255)
+                        _commandId++;
+                    else
+                        _commandId = 0;
+                }
             }
             catch
             {

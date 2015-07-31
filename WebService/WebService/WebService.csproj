@@ -167,7 +167,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\CommandsController.cs" />
     <Compile Include="Controllers\CommandValidation.cs" />
-    <Compile Include="Controllers\GetIdFromRequest.cs" />
     <Compile Include="Controllers\Logs.cs" />
     <Compile Include="Controllers\LongPolling.cs" />
     <Compile Include="Controllers\RabbitQueue.cs" />

@@ -6,7 +6,6 @@ namespace WebService.Controllers
     {
         readonly RabbitQueue _rabbit = new RabbitQueue();
         readonly CommandValidation _validation = new CommandValidation();
-        readonly GetIdFromRequest _getId = new GetIdFromRequest();
 
         [HttpGet]
         public ActionResult commands(string deviceId, int timeout)
@@ -22,9 +21,8 @@ namespace WebService.Controllers
         {
             if (_validation.Validation(command))
             {
-                string id = _getId.FromPost(command);
-                _rabbit.Producer(id, command);
-                _rabbit.CreateTimeout(id);
+                _rabbit.Producer(deviceId, command);
+                _rabbit.CreateTimeout(deviceId);
                 // ask all open pollings!!!!!!!!!!!!!!!!!!!!!
             }
             else

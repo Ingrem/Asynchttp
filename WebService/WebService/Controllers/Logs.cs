@@ -19,7 +19,7 @@ namespace WebService.Controllers
         static readonly MongoServer Server = Client.GetServer();
         static readonly MongoDatabase Database = Server.GetDatabase(WebConfigurationManager.AppSettings["DatabaseName"]);
 
-        public static void Save(string deviceId, string jsonString, string commandStatus)
+        public static void Save(string deviceId, string jsonString, string commandStatus, int commandId)
         {
             MongoCollection<GetCommandDto> col = Database.GetCollection<GetCommandDto>(deviceId);
 
@@ -29,6 +29,7 @@ namespace WebService.Controllers
             GetCommandDto getCommand = (GetCommandDto) serializer.ReadObject(stream);
             getCommand.CommandStatus = commandStatus;
             getCommand.Id = ObjectId.GenerateNewId().ToString();
+            getCommand.CommandId = commandId;
 
             col.Insert(getCommand);
         }
@@ -44,8 +45,8 @@ namespace WebService.Controllers
                     foreach (GetCommandDto com in LogsForDevice(c))
                     {
                         all.Append(String.Format("  Command ID - {0} ", com.CommandId));
-                        all.Append(String.Format("Name - {0} ", com.Command.CommandName));
-                        all = com.Command.Parameters.Values.Aggregate(all, (current, a) => current.Append(a + " "));
+                        all.Append(String.Format("Name - {0} ", com.CommandName));
+                        all = com.Parameters.Values.Aggregate(all, (current, a) => current.Append(a + " "));
                         all.Append(String.Format("Status - {0}", com.CommandStatus));
                         all.Append("\r\n");
                     }
@@ -81,13 +82,6 @@ namespace WebService.Controllers
             public string CommandStatus { get; set; }
             [DataMember]
             public int CommandId { get; set; }
-            [DataMember]
-            public CommandField Command { get; set; }
-        }
-
-        [DataContract]
-        public class CommandField
-        {
             [DataMember]
             public string CommandName { get; set; }
             [DataMember]

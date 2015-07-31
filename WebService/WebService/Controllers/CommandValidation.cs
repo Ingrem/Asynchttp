@@ -18,19 +18,19 @@ namespace WebService.Controllers
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(JsonDeserialization.GetCommandDto));
                 JsonDeserialization.GetCommandDto getCommand = (JsonDeserialization.GetCommandDto)serializer.ReadObject(stream);
 
-                if (getCommand.Command.CommandName == "delete" || getCommand.Command.CommandName == "getInfo")
+                if (getCommand.CommandName == "delete" || getCommand.CommandName == "getInfo")
                     return true;
-                if (getCommand.Command.CommandName != "upgrade" && getCommand.Command.CommandName != "setOnOff")
+                if (getCommand.CommandName != "upgrade" && getCommand.CommandName != "setOnOff")
                     return false;
-                switch (getCommand.Command.CommandName)
+                switch (getCommand.CommandName)
                 {
                     case "upgrade":
                         return
-                            getCommand.Command.Parameters.All(a => (a.Key == "name" && (string) a.Value == "url") ||
+                            getCommand.Parameters.All(a => (a.Key == "name" && (string) a.Value == "url") ||
                                                                    (a.Key == "value" && ((string) a.Value != "")));
                     case "setOnOff":
                         return 
-                            getCommand.Command.Parameters.All(a => (a.Key == "name" && (string) a.Value == "switchOn") ||
+                            getCommand.Parameters.All(a => (a.Key == "name" && (string) a.Value == "switchOn") ||
                                                                       (a.Key == "value" && Convert.ToBoolean(a.Value) is bool));
                 }
                 return true;

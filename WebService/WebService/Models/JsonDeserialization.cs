@@ -30,15 +30,6 @@ namespace WebService.Models
         public class GetCommandDto
         {
             [DataMember]
-            public int CommandId { get; set; }
-            [DataMember]
-            public CommandField Command { get; set; }
-        }
-
-        [DataContract]
-        public class CommandField
-        {
-            [DataMember]
             public string CommandName { get; set; }
             [DataMember]
             public Dictionary<string,object> Parameters { get; set; }
