@@ -13,6 +13,7 @@ namespace WebService.Controllers
         private void Count(object obj)
         {
             //request and close polling!!!!!!!!!!!!!!!!!!
+            // code 408 Request Timeout
         }
     }
 }

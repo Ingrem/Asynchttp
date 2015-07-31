@@ -8,15 +8,16 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using System.Web.Configuration;
 
 namespace WebService.Controllers
 {
     public class Logs
     {
-        const string ConnectionString = "mongodb://localhost";
+        static readonly string ConnectionString = WebConfigurationManager.ConnectionStrings["Mongodb"].ConnectionString;
         static readonly MongoClient Client = new MongoClient(ConnectionString);
         static readonly MongoServer Server = Client.GetServer();
-        static readonly MongoDatabase Database = Server.GetDatabase("ServerLogs");
+        static readonly MongoDatabase Database = Server.GetDatabase(WebConfigurationManager.AppSettings["DatabaseName"]);
 
         public static void Save(string deviceId, string jsonString, string commandStatus)
         {

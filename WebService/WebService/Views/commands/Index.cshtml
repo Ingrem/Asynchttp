@@ -1,0 +1,27 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    <fieldset>
+        <legend>Service</legend>
+
+        <div class="editor-label"><b>Device ID</b>
+        </div>
+        <input type="text" name="deviceId" /><br />
+        <div class="editor-label"><b>Command</b>
+        </div>
+        <input type="text" name="command" /><br />
+
+        <div>
+            <form action="commands">
+                <b><button type="submit">Отправить</button></b>
+            </form>
+            <form action="commands/LogsView">
+                <b><button type="submit">Логи</button></b>
+            </form>
+        </div>
+
+    </fieldset>
+}

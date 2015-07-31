@@ -11,9 +11,9 @@ namespace WebService
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}",
-                defaults: new { controller = "Home", action = "Index" }
+                defaults: new { controller = "commands", action = "Index" }
             );
-            routes.MapRoute("Commands", "Commands/{deviceId}/{timeout}", new {controller = "Commands", action = "Commands"});
+            routes.MapRoute("commands", "commands/{deviceId}/{timeout}", new {controller = "commands", action = "commands"});
         }
     }
 }

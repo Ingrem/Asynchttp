@@ -168,7 +168,6 @@
     <Compile Include="Controllers\CommandsController.cs" />
     <Compile Include="Controllers\CommandValidation.cs" />
     <Compile Include="Controllers\GetIdFromRequest.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Logs.cs" />
     <Compile Include="Controllers\LongPolling.cs" />
     <Compile Include="Controllers\RabbitQueue.cs" />
@@ -177,7 +176,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\JsonDeserialization.cs" />
-    <Compile Include="Models\JsonSerialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -259,7 +257,6 @@
     <Content Include="Scripts\knockout-2.2.0.debug.js" />
     <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\util.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -272,9 +269,9 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\LogsView.cshtml" />
-    <Content Include="Views\Commands\Commands.cshtml" />
+    <Content Include="Views\commands\Index.cshtml" />
+    <Content Include="Views\commands\LogsView.cshtml" />
+    <Content Include="Views\commands\Commands.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

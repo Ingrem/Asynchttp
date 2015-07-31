@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-using Microsoft.Owin;
+using System.Web.Configuration;
 using RabbitMQ.Client;
+using IConnection = RabbitMQ.Client.IConnection;
 
 namespace WebService.Controllers
 {
@@ -15,15 +16,16 @@ namespace WebService.Controllers
             var connectionFactory = new ConnectionFactory();
             IConnection connection = connectionFactory.CreateConnection();
             IModel channel = connection.CreateModel();
+            string exchangeName = WebConfigurationManager.AppSettings["RabbitMQExchangeName"];
 
-            channel.ExchangeDeclare("direct_id", ExchangeType.Direct);
+            channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
             channel.QueueDeclare(queueName, false, false, true, null);
-            channel.QueueBind(queueName, "direct_id", queueName);
+            channel.QueueBind(queueName, exchangeName, queueName);
 
             ChangeCommandIdWithDeviceId(ref command);
 
             byte[] message = Encoding.UTF8.GetBytes(command);
-            channel.BasicPublish("direct_id", queueName, null, message);
+            channel.BasicPublish(exchangeName, queueName, null, message);
 
             channel.Close();
             connection.Close();
@@ -47,7 +49,7 @@ namespace WebService.Controllers
                 _commandId = 0;
         }
 
-        public string Consumer(string queueName)
+        public void Consumer(string queueName)
         {
             try
             {
@@ -66,7 +68,8 @@ namespace WebService.Controllers
                 if (command != null)
                 {
                     Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent");
-                    return Encoding.UTF8.GetString(command.Body);
+                    //request!!!!
+                    //return status code and json then close polling
                 }
             }
             catch
