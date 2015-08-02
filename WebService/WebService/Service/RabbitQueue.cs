@@ -5,21 +5,21 @@ using System.Web.Configuration;
 using RabbitMQ.Client;
 using IConnection = RabbitMQ.Client.IConnection;
 
-namespace WebService.Controllers
+namespace WebService.Service
 {
     public class RabbitQueue
     {
         private int _commandId;
-        public const int TimeoutMs = 10000;
+        public const int TimeoutMs = 100000;
         public void Producer(string queueName, string command)
         {
             var connectionFactory = new ConnectionFactory
                 {
-                    UserName = WebConfigurationManager.AppSettings["UserName"],
-                    Password = WebConfigurationManager.AppSettings["Password"],
-                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
-                    HostName = WebConfigurationManager.AppSettings["HostName"],
-                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                    UserName = WebConfigurationManager.AppSettings["RabbitMQUserName"],
+                    Password = WebConfigurationManager.AppSettings["RabbitMQPassword"],
+                    VirtualHost = WebConfigurationManager.AppSettings["RabbitMQVirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["RabbitMQHostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["RabbitMQPort"])
                 };
             IConnection connection = connectionFactory.CreateConnection();
             IModel channel = connection.CreateModel();
@@ -36,17 +36,17 @@ namespace WebService.Controllers
             connection.Close();
         }
 
-        public void Consumer(string queueName)
+        public string Consumer(string queueName)
         {
             try
             {
                 var connectionFactory = new ConnectionFactory
                 {
-                    UserName = WebConfigurationManager.AppSettings["UserName"],
-                    Password = WebConfigurationManager.AppSettings["Password"],
-                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
-                    HostName = WebConfigurationManager.AppSettings["HostName"],
-                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                    UserName = WebConfigurationManager.AppSettings["RabbitMQUserName"],
+                    Password = WebConfigurationManager.AppSettings["RabbitMQPassword"],
+                    VirtualHost = WebConfigurationManager.AppSettings["RabbitMQVirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["RabbitMQHostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["RabbitMQPort"])
                 };
                 IConnection connection = connectionFactory.CreateConnection();
                 IModel channel = connection.CreateModel();
@@ -61,19 +61,26 @@ namespace WebService.Controllers
 
                 if (command != null)
                 {
-                    Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent", _commandId);
-                    if (_commandId != 255)
+                    try
+                    {
+                        Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent", _commandId);
+                    }
+                    catch
+                    {
+                        return "Database error";
+                    }
+                if (_commandId != 255)
                         _commandId++;
                     else
                         _commandId = 0;
-                    //request!!!!
-                    //return status code and json then close polling
+                    return Encoding.UTF8.GetString(command.Body);
                 }
             }
             catch
             {
-                // ignored
+                return "RabbitMQ error";
             }
+            return null;
         }
         public void CreateTimeout(string queueName)
         {
@@ -87,11 +94,11 @@ namespace WebService.Controllers
                 var queueName = (string)obj;
                 var connectionFactory = new ConnectionFactory
                 {
-                    UserName = WebConfigurationManager.AppSettings["UserName"],
-                    Password = WebConfigurationManager.AppSettings["Password"],
-                    VirtualHost = WebConfigurationManager.AppSettings["VirtualHost"],
-                    HostName = WebConfigurationManager.AppSettings["HostName"],
-                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["Port"])
+                    UserName = WebConfigurationManager.AppSettings["RabbitMQUserName"],
+                    Password = WebConfigurationManager.AppSettings["RabbitMQPassword"],
+                    VirtualHost = WebConfigurationManager.AppSettings["RabbitMQVirtualHost"],
+                    HostName = WebConfigurationManager.AppSettings["RabbitMQHostName"],
+                    Port = Convert.ToInt32(WebConfigurationManager.AppSettings["RabbitMQPort"])
                 };
                 IConnection connection = connectionFactory.CreateConnection();
                 IModel channel = connection.CreateModel();

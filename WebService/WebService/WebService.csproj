@@ -163,14 +163,12 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\Startup.cs" />
-    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Startup.cs" />
     <Compile Include="Controllers\CommandsController.cs" />
-    <Compile Include="Controllers\CommandValidation.cs" />
-    <Compile Include="Controllers\Logs.cs" />
-    <Compile Include="Controllers\LongPolling.cs" />
-    <Compile Include="Controllers\RabbitQueue.cs" />
-    <Compile Include="Controllers\TimeoutLongPolling.cs" />
+    <Compile Include="Service\CommandValidation.cs" />
+    <Compile Include="Service\Logs.cs" />
+    <Compile Include="Service\LongPolling.cs" />
+    <Compile Include="Service\RabbitQueue.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -232,6 +230,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Doc\Json.txt" />
     <Content Include="Doc\письмо.txt" />
     <Content Include="Doc\сама задача.txt" />
     <Content Include="Doc\шаги.txt" />
@@ -270,7 +269,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\commands\Index.cshtml" />
     <Content Include="Views\commands\LogsView.cshtml" />
-    <Content Include="Views\commands\Commands.cshtml" />
+    <Content Include="Views\commands\commands.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

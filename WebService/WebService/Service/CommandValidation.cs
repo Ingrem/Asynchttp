@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using WebService.Models;
 
-namespace WebService.Controllers
+namespace WebService.Service
 {
     public class CommandValidation
     {

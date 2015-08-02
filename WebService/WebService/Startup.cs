@@ -1,7 +1,6 @@
 ﻿using Microsoft.Owin;
 using Owin;
 using WebService;
-
 [assembly: OwinStartup(typeof(Startup))]
 
 namespace WebService

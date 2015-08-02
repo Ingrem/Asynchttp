@@ -5,12 +5,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Web.Configuration;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using System.Web.Configuration;
 
-namespace WebService.Controllers
+namespace WebService.Service
 {
     public class Logs
     {

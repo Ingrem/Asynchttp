@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using WebService.Service;
 
 namespace WebService.Controllers
 {
@@ -6,14 +7,13 @@ namespace WebService.Controllers
     {
         readonly RabbitQueue _rabbit = new RabbitQueue();
         readonly CommandValidation _validation = new CommandValidation();
+        readonly LongPolling _polling = new LongPolling();
 
         [HttpGet]
         public ActionResult commands(string deviceId, int timeout)
         {
-            // open polling!!!!!!!!!!!!!!!!!!!
-           // _timeout.CreateTimeout(timeout);
-           // _rabbit.Consumer(deviceId);
-            return View();
+            object[] str = {deviceId, timeout};
+            return View(str);
         }
 
         [HttpPost]
@@ -23,7 +23,7 @@ namespace WebService.Controllers
             {
                 _rabbit.Producer(deviceId, command);
                 _rabbit.CreateTimeout(deviceId);
-                // ask all open pollings!!!!!!!!!!!!!!!!!!!!!
+                _polling.AskAll(deviceId);
             }
             else
             {
