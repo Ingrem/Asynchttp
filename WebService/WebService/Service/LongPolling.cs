@@ -1,32 +1,36 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace WebService.Service
 {
-    public class LongPolling : Hub
+    public class LongPolling
     {
-        readonly RabbitQueue _rabbit = new RabbitQueue();
-        static readonly Dictionary<string, string> GetId = new Dictionary<string, string>();
-        public void Send(string deviceId)
+        public static Dictionary<string, string> JsonStrings = new Dictionary<string, string>();
+        public static Collection<String> Connections = new Collection<string>();
+
+        public string CommandWaitPolling(string deviceId, int timeout)
         {
-            var context = GlobalHost.ConnectionManager.GetHubContext<LongPolling>();
-            string message = _rabbit.Consumer(deviceId);
-            if (message != null)
+            RabbitQueue rabbit = new RabbitQueue();
+            TimerCallback tm = Count;
+
+            JsonStrings.Add(deviceId, rabbit.Consumer(deviceId));
+            Connections.Add(deviceId);
+            var timer = new Timer(tm, deviceId, timeout, timeout);
+            while (JsonStrings[deviceId] == null)
             {
-                context.Clients.Client(GetId[deviceId]).addNewMessageToPage(message);
-                GetId.Remove(deviceId);
+                // loop
             }
+            timer.Dispose();
+            Connections.Remove(deviceId);
+            return "";
         }
 
-        public void AskAll(string deviceId)
+        private void Count(object obj)
         {
-            Send(deviceId);
-        }
-
-        public void SetId(string deviceId)
-        {
-            GetId.Add(deviceId, Context.ConnectionId);
+            string deviceId = (string) obj;
+            JsonStrings[deviceId] = "timeout";
         }
     }             
 }

@@ -1,29 +1,43 @@
-﻿using System.Web.Mvc;
+﻿using System.Threading.Tasks;
+using System.Web.Mvc;
 using WebService.Service;
 
 namespace WebService.Controllers
 {
     public class CommandsController : Controller
     {
-        readonly RabbitQueue _rabbit = new RabbitQueue();
-        readonly CommandValidation _validation = new CommandValidation();
-        readonly LongPolling _polling = new LongPolling();
-
         [HttpGet]
-        public ActionResult commands(string deviceId, int timeout)
+        public async Task<ActionResult> commands(string deviceId, int timeout)
         {
-            object[] str = {deviceId, timeout};
-            return View(str);
+            LongPolling longPolling = new LongPolling();
+
+            await Task.FromResult(longPolling.CommandWaitPolling(deviceId, timeout));
+
+            string jsonStringtmp = LongPolling.JsonStrings[deviceId];
+            LongPolling.JsonStrings.Remove(deviceId);
+
+            if (jsonStringtmp == "timeout")
+                return new HttpStatusCodeResult(408, "Request Timeout");
+            if (jsonStringtmp == "Database error")
+                return new HttpStatusCodeResult(503, "Database error");
+            if (jsonStringtmp == "RabbitMQ error")
+                return new HttpStatusCodeResult(503, "RabbitMQ error");
+            
+            return Json(jsonStringtmp, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public ActionResult Index(string deviceId, string command)
         {
-            if (_validation.Validation(command))
+            RabbitQueue rabbit = new RabbitQueue();
+            CommandValidation validation = new CommandValidation();
+
+            if (validation.Validation(command))
             {
-                _rabbit.Producer(deviceId, command);
-                _rabbit.CreateTimeout(deviceId);
-                _polling.AskAll(deviceId);
+                rabbit.Producer(deviceId, command);
+                rabbit.CreateTimeout(deviceId);
+                if (LongPolling.Connections.Contains(deviceId))
+                    LongPolling.JsonStrings[deviceId] = (rabbit.Consumer(deviceId));
             }
             else
             {

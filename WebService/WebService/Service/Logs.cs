@@ -14,56 +14,74 @@ namespace WebService.Service
 {
     public class Logs
     {
-        static readonly string ConnectionString = WebConfigurationManager.ConnectionStrings["Mongodb"].ConnectionString;
-        static readonly MongoClient Client = new MongoClient(ConnectionString);
-        static readonly MongoServer Server = Client.GetServer();
-        static readonly MongoDatabase Database = Server.GetDatabase(WebConfigurationManager.AppSettings["DatabaseName"]);
-
-        public static void Save(string deviceId, string jsonString, string commandStatus, int commandId)
+        public static string Save(string deviceId, string jsonString, string commandStatus, int commandId)
         {
-            MongoCollection<GetCommandDto> col = Database.GetCollection<GetCommandDto>(deviceId);
+            try
+            {
+                string connectionString = WebConfigurationManager.ConnectionStrings["Mongodb"].ConnectionString;
+                MongoClient client = new MongoClient(connectionString);
+                MongoServer server = client.GetServer();
+                MongoDatabase database = server.GetDatabase(WebConfigurationManager.AppSettings["DatabaseName"]);
+                MongoCollection<GetCommandDto> col = database.GetCollection<GetCommandDto>(deviceId);
 
-            byte[] byteArray = Encoding.Unicode.GetBytes(jsonString);
-            MemoryStream stream = new MemoryStream(byteArray);
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (GetCommandDto));
-            GetCommandDto getCommand = (GetCommandDto) serializer.ReadObject(stream);
-            getCommand.CommandStatus = commandStatus;
-            getCommand.Id = ObjectId.GenerateNewId().ToString();
-            getCommand.CommandId = commandId;
+                byte[] byteArray = Encoding.Unicode.GetBytes(jsonString);
+                MemoryStream stream = new MemoryStream(byteArray);
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (GetCommandDto));
+                GetCommandDto getCommand = (GetCommandDto) serializer.ReadObject(stream);
+                getCommand.CommandStatus = commandStatus;
+                getCommand.Id = ObjectId.GenerateNewId().ToString();
+                getCommand.CommandId = commandId;
 
-            col.Insert(getCommand);
+                col.Insert(getCommand);
+            }
+            catch
+            {
+                return "Database error";
+            }
+            return "OK";
         }
 
         public static string ReturnLogs()
         {
-            StringBuilder all = new StringBuilder();
             try
             {
-                foreach (var c in Database.GetCollectionNames().Where(c => c != "system.indexes"))
+                string connectionString = WebConfigurationManager.ConnectionStrings["Mongodb"].ConnectionString;
+                MongoClient client = new MongoClient(connectionString);
+                MongoServer server = client.GetServer();
+                MongoDatabase database = server.GetDatabase(WebConfigurationManager.AppSettings["DatabaseName"]);
+                StringBuilder all = new StringBuilder();
+                try
                 {
-                    all.Append(String.Format("Device ID - {0} \r\n", c));
-                    foreach (GetCommandDto com in LogsForDevice(c))
+                    foreach (var c in database.GetCollectionNames().Where(c => c != "system.indexes"))
                     {
-                        all.Append(String.Format("  Command ID - {0} ", com.CommandId));
-                        all.Append(String.Format("Name - {0} ", com.CommandName));
-                        all = com.Parameters.Values.Aggregate(all, (current, a) => current.Append(a + " "));
-                        all.Append(String.Format("Status - {0}", com.CommandStatus));
-                        all.Append("\r\n");
+                        all.Append(String.Format("Device ID - {0} \r\n", c));
+                        foreach (GetCommandDto com in LogsForDevice(c, database))
+                        {
+                            all.Append(String.Format("  Command ID - {0} ", com.CommandId));
+                            all.Append(String.Format("Name - {0} ", com.CommandName));
+                            all = com.Parameters.Values.Aggregate(all, (current, a) => current.Append(a + " "));
+                            all.Append(String.Format("Status - {0}", com.CommandStatus));
+                            all.Append("\r\n");
+                        }
                     }
+                    return all.ToString();
                 }
-                return all.ToString();
+                catch
+                {
+                    return all.ToString();
+                }
             }
-            catch 
+            catch
             {
-                return all.ToString();
+                return "";
             }
         }
 
-        private static IEnumerable<GetCommandDto> LogsForDevice(string deviceId)
+        private static IEnumerable<GetCommandDto> LogsForDevice(string deviceId, MongoDatabase database)
         {
             try
             {
-                MongoCollection<GetCommandDto> col = Database.GetCollection<GetCommandDto>(deviceId);
+                MongoCollection<GetCommandDto> col = database.GetCollection<GetCommandDto>(deviceId);
                 IEnumerable<GetCommandDto> com = col.FindAll();
                 return com;
             }

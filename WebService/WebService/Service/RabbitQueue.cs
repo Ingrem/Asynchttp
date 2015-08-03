@@ -9,8 +9,9 @@ namespace WebService.Service
 {
     public class RabbitQueue
     {
-        private int _commandId;
-        public const int TimeoutMs = 100000;
+        private static int _commandId;
+        public int TimeoutMs = Convert.ToInt32(WebConfigurationManager.AppSettings["RabbitMQTimeoutCommand"]);
+
         public void Producer(string queueName, string command)
         {
             var connectionFactory = new ConnectionFactory
@@ -61,15 +62,12 @@ namespace WebService.Service
 
                 if (command != null)
                 {
-                    try
-                    {
-                        Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent", _commandId);
-                    }
-                    catch
-                    {
-                        return "Database error";
-                    }
-                if (_commandId != 255)
+                    string result = Logs.Save(queueName, Encoding.UTF8.GetString(command.Body), "sent", _commandId);
+
+                    if (result != "OK")
+                        return result;
+                
+                    if (_commandId != 255)
                         _commandId++;
                     else
                         _commandId = 0;
@@ -82,11 +80,13 @@ namespace WebService.Service
             }
             return null;
         }
+
         public void CreateTimeout(string queueName)
         {
             TimerCallback tm = Count;
             new Timer(tm, queueName, TimeoutMs, TimeoutMs);
         }
+
         private void Count(object obj)
         {
             try
